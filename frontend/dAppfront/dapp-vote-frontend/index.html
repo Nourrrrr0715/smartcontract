@@ -1,8 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <title>Interface de Vote</title>
+  <meta charset="UTF-8">
+  <title>🗳️ Interface de Vote</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      text-align: center;
+      padding: 50px;
+    }
+    h1 {
+      color: #333;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .status {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
   <h1>🗳️ Interface de Vote</h1>
@@ -10,28 +42,38 @@
   <input id="proposal" placeholder="Entrer une proposition" />
   <button onclick="registerProposal()">Soumettre</button>
 
+  <div class="status" id="status"></div>
+
   <script>
     const CONTRACT_ADDRESS = "0xC01472ad04BF859756aD3F5FB66e6F7269801F97";
 
-    const ABI = [{"inputs":[],"name":"endProposalsRegistration","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"endVotingSession","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"OwnableInvalidOwner","type":"error"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"OwnableUnauthorizedAccount","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"inputs":[],"name":"proceedToNextStep","outputs":[],"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"proposalId","type":"uint256"}],"name":"ProposalRegistered","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"proposalId","type":"uint256"}],"name":"ProposalVetoed","type":"event"},{"inputs":[{"internalType":"string","name":"_description","type":"string"}],"name":"registerProposal","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_voter","type":"address"}],"name":"registerVoter","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_durationInSeconds","type":"uint256"}],"name":"setWorkflowDeadline","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"startProposalsRegistration","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"startVotingSession","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"tallyVotes","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_proposalId","type":"uint256"}],"name":"vetoProposal","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_proposalId","type":"uint256"}],"name":"vote","outputs":[],"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"voter","type":"address"},{"indexed":false,"internalType":"uint256","name":"proposalId","type":"uint256"}],"name":"Voted","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"voterAddress","type":"address"}],"name":"VoterRegistered","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"enum Voting.WorkflowStatus","name":"previousStatus","type":"uint8"},{"indexed":false,"internalType":"enum Voting.WorkflowStatus","name":"newStatus","type":"uint8"}],"name":"WorkflowStatusChange","type":"event"},{"inputs":[],"name":"getWinner","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"proposals","outputs":[{"internalType":"string","name":"description","type":"string"},{"internalType":"uint256","name":"voteCount","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"vetoedProposals","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"voters","outputs":[{"internalType":"bool","name":"isRegistered","type":"bool"},{"internalType":"bool","name":"hasVoted","type":"bool"},{"internalType":"uint256","name":"votedProposalId","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"winningProposalId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"workflowDeadline","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"workflowStatus","outputs":[{"internalType":"enum Voting.WorkflowStatus","name":"","type":"uint8"}],"stateMutability":"view","type":"function"}];
+    const ABI = [ /* ton ABI ici, ou utilise JSON.parse() si tu la charges en externe */ ];
 
     async function registerProposal() {
+      const status = document.getElementById("status");
+      const inputValue = document.getElementById("proposal").value;
+
       if (!window.ethereum) {
-        alert("Installe MetaMask !");   
+        alert("Installe MetaMask !");
         return;
       }
 
-      await window.ethereum.request({ method: "eth_requestAccounts" });
+      try {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
 
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, JSON.parse(ABI), signer);
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
 
-      const input = document.getElementById("proposal").value;
-      const tx = await contract.registerProposal(input);
-      await tx.wait();
+        const tx = await contract.registerProposal(inputValue);
+        status.innerText = "📤 Enregistrement en cours...";
+        await tx.wait();
 
-      alert("✅ Proposition enregistrée !");
+        status.innerText = "✅ Proposition enregistrée avec succès !";
+      } catch (error) {
+        console.error(error);
+        status.innerText = "❌ Erreur lors de l'enregistrement.";
+      }
     }
   </script>
 </body>
